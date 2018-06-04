@@ -1,0 +1,211 @@
+<html>
+<head>
+<title>EmlaLock Adder</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript">
+'use strict'
+
+var USERID
+var APIKEY
+var URL = 'https://www.emlalock.com/plugin/counter'
+var URL_ADD = 'https://www.emlalock.com/api/add'
+var URL_ADDMINIMUM = 'https://www.emlalock.com/api/addminimum'
+var URL_INFO = 'https://www.emlalock.com/api/info'
+
+var MAX_AMOUNT = 60 * 60 * 24 * 7
+
+$(function() {
+    $.urlParam = function(name){
+        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+        if (results==null){
+           return null;
+        }
+        else{
+           return decodeURI(results[1]) || 0;
+        }
+    }
+
+    var startStamp
+    var endStamp
+    var updater
+
+    USERID = localStorage.getItem('userid')
+    APIKEY = localStorage.getItem('apikey')
+    $('#userid').val(USERID)
+    $('#apikey').val(APIKEY)
+
+    $('#userid').on('input', function() {
+        USERID = $('#userid').val()
+        localStorage.setItem('userid', USERID)
+        load()
+    })
+    $('#apikey').on('input', function() {
+        APIKEY = $('#apikey').val()
+        localStorage.setItem('apikey', APIKEY)
+        load()
+    })
+
+    function setFromUrlParams() {
+	var reload = false
+        if($.urlParam('userid') !== null) {
+            localStorage.setItem('userid',$.urlParam('userid'))
+            reload = true
+        }
+        if($.urlParam('apikey') !== null) {
+            localStorage.setItem('apikey',$.urlParam('apikey'))
+            reload = true
+        }
+	if(reload) {
+            window.location.assign(window.location.href.replace(window.location.search,''))
+        }
+    }
+
+
+    function setCounters() {
+        updater = setInterval(function() {
+            var now = new Date().getTime()
+
+            // Find the distance between now an the count down date
+            var distance = endStamp.getTime() - now
+
+            // Time calculations for days, hours, minutes and seconds
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24))
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000)
+
+            // Display the result in the element with id="demo"
+            $('#down').text(days + "d " + hours + "h " + minutes + "m " + seconds + "s ")
+
+            // If the count down is finished, write some text 
+            if (distance < 0) {
+                clearInterval(x);
+                document.getElementById("demo").innerHTML = "EXPIRED";
+            }
+
+            // Find the distance between now an the count down date
+            var distance = now - startStamp.getTime();
+
+            // Time calculations for days, hours, minutes and seconds
+            var days = Math.floor(distance / (1000 * 60 * 60 * 24))
+            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
+            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
+            var seconds = Math.floor((distance % (1000 * 60)) / 1000)
+
+            // Display the result in the element with id="demo"
+            $('#up').text(days + "d " + hours + "h " + minutes + "m " + seconds + "s ")
+        }, 1000)
+    }
+
+    function reloadCounters() {
+        clearInterval(updater)
+        $.get(URL, {
+                userid: USERID
+            })
+            .done(function(data) {
+                var stringDates = data.match(/Date\(\d+\)/g)
+                startStamp = new Date(parseInt(stringDates[0].match(/\d+/g)[0]))
+                endStamp = new Date(parseInt(stringDates[1].match(/\d+/g)[0]))
+                //$('#content').text(startStamp + " - " + endStamp)
+                setCounters()
+            })
+    }
+
+    function load() {
+        $('#avatar').attr('src', 'https://www.emlalock.com/images/profile/' + USERID + '.jpg')
+
+        clearInterval(updater)
+
+        $.get(URL_INFO, {
+                userid: USERID,
+                apikey: APIKEY
+            })
+            .done(function(data) {
+                var info = data //JSON.parse(data)
+                var username = info['user']['username']
+                $('title, #username').text(username)
+
+                if ('chastitysession' in info) {
+                    reloadCounters()
+                } else {
+                    $('#up, #down').text('N/A')
+                }
+            })
+            .fail(function() {
+                $('title, #username').text('')
+                $('#up, #down').text('N/A')
+            })
+
+    }
+
+
+    function addTime(val) {
+        $('#action').text('Adding ' + val + ' seconds;')
+        $.when(
+            $.get(URL_ADD, {
+                userid: USERID,
+                apikey: APIKEY,
+                value: val
+            })
+            .done(function(data) {
+                $('#action').text($('#action').text() + ' normal time set,')
+            }),
+            $.get(URL_ADDMINIMUM, {
+                userid: USERID,
+                apikey: APIKEY,
+                value: val
+            })
+            .done(function(data) {
+                $('#action').text($('#action').text() + ' minimal time set.')
+            })).then(function(data1, data2) {
+            reloadCounters()
+        })
+    }
+
+    $('#point').on('click', function() {
+        var newTime = Date.parse($('#newTime').val())
+        //alert(JSON.stringify())
+        var amount = (newTime - endStamp) / 1000
+
+        if (amount > 0 && amount < MAX_AMOUNT) {
+            addTime(amount)
+        }
+    })
+    $('#segment').on('click', function() {
+        var amount = 60 * 60 * parseInt($('#extraDuration').val())
+
+        if (amount > 0 && amount < MAX_AMOUNT) {
+            addTime(amount)
+        }
+    })
+
+    setFromUrlParams()
+    load()
+})
+</script>
+
+</head>
+<div>User ID: <input id="userid" /></div>
+<div>API Key: <input id="apikey" /></div>
+<hr />
+<div><img id="avatar" alt="Avatar"/></div>
+<div id="username"></div>
+<div>Elapsed: <span id="up">
+</span></div>
+<div>Remaining: <span id="down">
+</span></div>
+<div>
+Datetime: 
+<input id="newTime" type="datetime-local" />
+<button id="point">Elongate to</button>
+</div>
+<div>
+Hours: 
+<input id="extraDuration" type="number" />
+<button id="segment">Add time</button>
+</div>
+<div id="action"></div>
+
+</body>
+</html>
+
