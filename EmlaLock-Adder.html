@@ -218,13 +218,13 @@ $(function() {
         sendCommand('buzzer')
     })
     $('#level1').on('click', function () {
-        sendCommand('shocker', 15)
-    })
-    $('#level2').on('click', function () {
         sendCommand('shocker', 20)
     })
+    $('#level2').on('click', function () {
+        sendCommand('shocker', 33)
+    })
     $('#level3').on('click', function () {
-        sendCommand('shocker', 30)
+        sendCommand('shocker', 50)
     })
     $('#levelVib1').on('click', function () {
         sendCommand('vibrator', 40)
