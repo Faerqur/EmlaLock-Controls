@@ -1,16 +1,20 @@
 <html>
 <head>
 <title>EmlaLock Adder</title>
+<style>button {margin: 1em 1em 1em 1em;}</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript">
 'use strict'
 
 var USERID
 var APIKEY
+var DEVICEID
+var ACCESS_TOKEN
 var URL = 'https://www.emlalock.com/plugin/counter'
 var URL_ADD = 'https://www.emlalock.com/api/add'
 var URL_ADDMINIMUM = 'https://www.emlalock.com/api/addminimum'
 var URL_INFO = 'https://www.emlalock.com/api/info'
+var URL_DEVICE = 'https://api.particle.io/v1/devices/'
 
 var MAX_AMOUNT = 60 * 60 * 24 * 7
 
@@ -31,8 +35,12 @@ $(function() {
 
     USERID = localStorage.getItem('userid')
     APIKEY = localStorage.getItem('apikey')
+    DEVICEID = localStorage.getItem('deviceid')
+    ACCESS_TOKEN = localStorage.getItem('access_token')
     $('#userid').val(USERID)
     $('#apikey').val(APIKEY)
+    $('#deviceid').val(DEVICEID)
+    $('#access_token').val(ACCESS_TOKEN)
 
     $('#userid').on('input', function() {
         USERID = $('#userid').val()
@@ -44,6 +52,16 @@ $(function() {
         localStorage.setItem('apikey', APIKEY)
         load()
     })
+    $('#deviceid').on('input', function() {
+        DEVICEID = $('#deviceid').val()
+        localStorage.setItem('deviceid', DEVICEID)
+        load()
+    })
+    $('#access_token').on('input', function() {
+        ACCESS_TOKEN = $('#access_token').val()
+        localStorage.setItem('access_token', ACCESS_TOKEN)
+        load()
+    })
 
     function setFromUrlParams() {
 	var reload = false
@@ -53,6 +71,14 @@ $(function() {
         }
         if($.urlParam('apikey') !== null) {
             localStorage.setItem('apikey',$.urlParam('apikey'))
+            reload = true
+        }
+        if($.urlParam('deviceid') !== null) {
+            localStorage.setItem('deviceid',$.urlParam('deviceid'))
+            reload = true
+        }
+	if($.urlParam('access_token') !== null) {
+            localStorage.setItem('access_token',$.urlParam('access_token'))
             reload = true
         }
 	if(reload) {
@@ -162,6 +188,16 @@ $(function() {
         })
     }
 
+    function sendCommand(cmd, val=null) {
+        var data = {access_token: ACCESS_TOKEN}
+        if (val != null) {
+            Object.assign(data, {args: val})
+        }
+        $.post(URL_DEVICE+DEVICEID+'/'+cmd, data, function (data) {
+            // Nothing
+        })
+    }
+
     $('#point').on('click', function() {
         var newTime = Date.parse($('#newTime').val())
         //alert(JSON.stringify())
@@ -178,6 +214,28 @@ $(function() {
             addTime(amount)
         }
     })
+    $('#buzz').on('click', function () {
+        sendCommand('buzzer')
+    })
+    $('#level1').on('click', function () {
+        sendCommand('shocker', 15)
+    })
+    $('#level2').on('click', function () {
+        sendCommand('shocker', 20)
+    })
+    $('#level3').on('click', function () {
+        sendCommand('shocker', 30)
+    })
+    $('#levelVib1').on('click', function () {
+        sendCommand('vibrator', 40)
+    })
+    $('#levelVib2').on('click', function () {
+        sendCommand('vibrator', 60)
+    })
+    $('#levelVib3').on('click', function () {
+        sendCommand('vibrator', 80)
+    })
+
 
     setFromUrlParams()
     load()
@@ -205,6 +263,21 @@ Hours:
 <button id="segment">Add time</button>
 </div>
 <div id="action"></div>
+<hr />
+<div>Device ID: <input id="deviceid" /></div>
+<div>Access Token: <input id="access_token" /></div>
+
+<br />
+<button id="buzz" class="btn"><span>🔊</span></button>
+<br />
+<button id="levelVib1" class="btn"><span>⌇⌇⌇●○○</span></button>
+<button id="levelVib2" class="btn"><span>⌇⌇⌇●●○</span></button>
+<button id="levelVib3" class="btn"><span>⌇⌇⌇●●●</span></button>
+<br />
+<button id="level1" class="btn"><span>🗲●○○</span></button>
+<button id="level2" class="btn"><span>🗲●●○</span></button>
+<button id="level3" class="btn"><span>🗲●●●</span></button>
+
 
 </body>
 </html>
