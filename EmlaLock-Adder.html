@@ -18,6 +18,26 @@ var URL_DEVICE = 'https://api.particle.io/v1/devices/'
 
 var MAX_AMOUNT = 60 * 60 * 24 * 7
 
+$.fn.whenPressed = function (action, period) {
+    function engine(action) {
+        var performer = null
+        var start = function(e) {
+            e.preventDefault()
+            action()
+	    performer = setInterval(action, period)
+        }
+        var end = function(e) {
+	    clearInterval(performer)
+        }
+	return [start, end]
+    }
+
+    var handlers = engine(action)
+
+    this.on('touchstart mousedown', handlers[0])
+    this.on('touchend mouseup', handlers[1])
+}
+
 $(function() {
     $.urlParam = function(name){
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
@@ -214,27 +234,27 @@ $(function() {
             addTime(amount)
         }
     })
-    $('#buzz').on('click', function () {
+    $('#buzz').whenPressed(function () {
         sendCommand('buzzer')
-    })
-    $('#level1').on('click', function () {
+    }, 250)
+    $('#level1').whenPressed(function () {
         sendCommand('shocker', 20)
-    })
-    $('#level2').on('click', function () {
+    }, 250)
+    $('#level2').whenPressed(function () {
         sendCommand('shocker', 33)
-    })
-    $('#level3').on('click', function () {
+    }, 250)
+    $('#level3').whenPressed(function () {
         sendCommand('shocker', 50)
-    })
-    $('#levelVib1').on('click', function () {
+    }, 250)
+    $('#levelVib1').whenPressed(function () {
         sendCommand('vibrator', 40)
-    })
-    $('#levelVib2').on('click', function () {
+    }, 250)
+    $('#levelVib2').whenPressed(function () {
         sendCommand('vibrator', 60)
-    })
-    $('#levelVib3').on('click', function () {
+    }, 250)
+    $('#levelVib3').whenPressed(function () {
         sendCommand('vibrator', 80)
-    })
+    }, 250)
 
 
     setFromUrlParams()
