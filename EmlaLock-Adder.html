@@ -3,6 +3,8 @@
 <title>EmlaLock Adder</title>
 <style>button {margin: 1em 1em 1em 1em;}</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="TimeCircles.js"></script>
+<link href="TimeCircles.css" rel="stylesheet">
 <script type="text/javascript">
 'use strict'
 
@@ -18,6 +20,28 @@ var URL_DEVICE = 'https://api.particle.io/v1/devices/'
 
 var MAX_AMOUNT = 60 * 60 * 24 * 7
 
+var COUNTDOWN
+
+$.fn.whenPressed = function (action, period) {
+    function engine(action) {
+        var performer = null
+        var start = function(e) {
+            e.preventDefault()
+            action()
+	    performer = setInterval(action, period)
+        }
+        var end = function(e) {
+	    clearInterval(performer)
+        }
+	return [start, end]
+    }
+
+    var handlers = engine(action)
+
+    this.on('touchstart mousedown', handlers[0])
+    this.on('touchend mouseup', handlers[1])
+}
+
 $(function() {
     $.urlParam = function(name){
         var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
@@ -31,7 +55,6 @@ $(function() {
 
     var startStamp
     var endStamp
-    var updater
 
     USERID = localStorage.getItem('userid')
     APIKEY = localStorage.getItem('apikey')
@@ -62,6 +85,29 @@ $(function() {
         localStorage.setItem('access_token', ACCESS_TOKEN)
         load()
     })
+    
+    function nonEmpty(val) {
+        return val && val != '0'
+    }
+    
+    function makeVisible() {
+        if(nonEmpty(USERID)) {
+            $('#profile').css('display', 'block')
+            $('#countdown').css('display', 'flex')
+        } else {
+            $('#profile, #countdown').css('display', 'none')
+        }
+        if(nonEmpty(APIKEY)) {
+            $('#duration').css('display', 'block')
+        } else {
+            $('#duration').css('display', 'none')
+        }
+        if(nonEmpty(DEVICEID) && nonEmpty(ACCESS_TOKEN)) {
+            $('#incentives').css('display', 'block')
+        } else {
+            $('#incentives').css('display', 'none')
+        }
+    }
 
     function setFromUrlParams() {
 	var reload = false
@@ -85,46 +131,29 @@ $(function() {
             window.location.assign(window.location.href.replace(window.location.search,''))
         }
     }
-
-
-    function setCounters() {
-        updater = setInterval(function() {
-            var now = new Date().getTime()
-
-            // Find the distance between now an the count down date
-            var distance = endStamp.getTime() - now
-
-            // Time calculations for days, hours, minutes and seconds
-            var days = Math.floor(distance / (1000 * 60 * 60 * 24))
-            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000)
-
-            // Display the result in the element with id="demo"
-            $('#down').text(days + "d " + hours + "h " + minutes + "m " + seconds + "s ")
-
-            // If the count down is finished, write some text 
-            if (distance < 0) {
-                clearInterval(x);
-                document.getElementById("demo").innerHTML = "EXPIRED";
+    
+    function setCountdown(total, remaining) {
+        $('#face').attr('data-timer', remaining)
+        COUNTDOWN = $('#face').TimeCircles({
+            total_duration: total,
+            count_past_zero: false,
+            animation: 'smooth',
+            circle_bg_color: '#80808080',
+            fg_width: 0.05,
+            bg_width: 0.7,
+            time: {
+                Days: { color: "#7700bc" },
+                Hours: { color: "#a661ce" },
+                Minutes: { color: "#caa3e0" },
+                Seconds: { color: "#ebdef2" }
             }
-
-            // Find the distance between now an the count down date
-            var distance = now - startStamp.getTime();
-
-            // Time calculations for days, hours, minutes and seconds
-            var days = Math.floor(distance / (1000 * 60 * 60 * 24))
-            var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-            var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))
-            var seconds = Math.floor((distance % (1000 * 60)) / 1000)
-
-            // Display the result in the element with id="demo"
-            $('#up').text(days + "d " + hours + "h " + minutes + "m " + seconds + "s ")
-        }, 1000)
+        })
+        //COUNTDOWN.prototype.setTime = function(val) {
+        //    COUNTDOWN.addTime(val - COUNTDOWN.getTime())
+        //}
     }
 
     function reloadCounters() {
-        clearInterval(updater)
         $.get(URL, {
                 userid: USERID
             })
@@ -132,15 +161,23 @@ $(function() {
                 var stringDates = data.match(/Date\(\d+\)/g)
                 startStamp = new Date(parseInt(stringDates[0].match(/\d+/g)[0]))
                 endStamp = new Date(parseInt(stringDates[1].match(/\d+/g)[0]))
-                //$('#content').text(startStamp + " - " + endStamp)
-                setCounters()
+
+                var remaining = endStamp.getTime() - new Date().getTime()
+                var total = endStamp.getTime() - startStamp.getTime()
+                remaining /= 1000
+                total /= 1000
+
+                if (COUNTDOWN) {
+                    //$('#face').attr('data-timer', remaining)
+                    COUNTDOWN.addTime(remaining - COUNTDOWN.getTime())
+                } else {
+                    setCountdown(total, remaining)
+                }
             })
     }
 
     function load() {
         $('#avatar').attr('src', 'https://www.emlalock.com/images/profile/' + USERID + '.jpg')
-
-        clearInterval(updater)
 
         $.get(URL_INFO, {
                 userid: USERID,
@@ -172,20 +209,17 @@ $(function() {
                 userid: USERID,
                 apikey: APIKEY,
                 value: val
-            })
-            .done(function(data) {
-                $('#action').text($('#action').text() + ' normal time set,')
             }),
             $.get(URL_ADDMINIMUM, {
                 userid: USERID,
                 apikey: APIKEY,
                 value: val
+            })).done(function(data1, data2) {
+                $('#action').text('Added ' + val + ' seconds;')
+                //$('#action').text($('#action').text() + ' normal time set,')
+                //$('#action').text($('#action').text() + ' minimal time set.')
+                reloadCounters()
             })
-            .done(function(data) {
-                $('#action').text($('#action').text() + ' minimal time set.')
-            })).then(function(data1, data2) {
-            reloadCounters()
-        })
     }
 
     function sendCommand(cmd, val=null) {
@@ -214,9 +248,12 @@ $(function() {
             addTime(amount)
         }
     })
-    $('#buzz').on('click', function () {
+    /*$('#buzz').on('click', function () {
         sendCommand('buzzer')
-    })
+    })*/
+    $('#buzz').whenPressed(function () {
+        sendCommand('buzzer')
+    }, 250)
     $('#level1').on('click', function () {
         sendCommand('shocker', 15)
     })
@@ -239,19 +276,110 @@ $(function() {
 
     setFromUrlParams()
     load()
+    $(window).resize(function () {
+        COUNTDOWN.rebuild()
+    })
+    makeVisible()
 })
 </script>
+<style>
+@font-face {
+    font-family: Ruthie;
+    src: url('rothie.woff');
+}
+
+html, body {
+    width: 100%;
+    height: 100%;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background: linear-gradient(#000000c0, #000000c0), url('nice.jpg');
+    background-size: cover;
+    background-position: center;
+    color: #eeeeeea0;
+}
+
+#field {
+    justify-items: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    display: grid;
+    grid-template: minmax(100px, 20%) minmax(100px, 2fr) minmax(150px, 3fr) / minmax(150px, 20%) 1fr 20%;
+    grid-template-areas:
+    "profile countdown countdown"
+    "profile duration ."
+    ". incentives .";
+}
+
+#profile {
+    /*background-color: #ff000030;*/
+    background-color: #7700bc30;
+    grid-area: profile;
+    box-shadow: 0 0 40px 20px #7700bc30;
+    text-align: center;
+    font-family: Ruthie;
+    font-size: 200%;
+}
+
+#countdown {
+    justify-self: stretch;
+    align-self: stretch;
+    grid-area: countdown;
+    display: flex;
+    justify-content: center;
+}
+
+#duration {
+    background-color: #00ff0030;
+    grid-area: duration;
+}
+
+#incentives {
+    background-color: #0000ff30;
+    grid-area: incentives;
+}
+
+.time_circles {
+    height: inherit !important;
+}
+
+#profile, #countdown, #duration, #incentives {
+    display: none;
+}
+
+#action {
+    display: none;
+}
+
+#userid_div, #apikey_div, #deviceid_div, #access_token_div, #elapsed_div, #remaining_div {
+    display: none;
+}
+</style>
 
 </head>
-<div>User ID: <input id="userid" /></div>
-<div>API Key: <input id="apikey" /></div>
-<hr />
-<div><img id="avatar" alt="Avatar"/></div>
-<div id="username"></div>
-<div>Elapsed: <span id="up">
-</span></div>
-<div>Remaining: <span id="down">
-</span></div>
+<body>
+
+<div id="field">
+    <div id="profile">
+        <img id="avatar" alt="Avatar"/><br />
+        <span id="username"></span>
+    </div>
+    <div id="countdown">
+        <!--<div id="wrapper">test</div>-->
+        <div id="face"></div>
+        <!--
+        <div id="elapsed_div">Elapsed: <span id="up"></span></div>
+        <div id="remaining_div">Remaining: <span id="down"></span></div>-->
+    </div>    
+    <div id="duration">
+    
+<div id="userid_div">User ID: <input id="userid" /></div>
+<div id="apikey_div">API Key: <input id="apikey" /></div>
+
 <div>
 Datetime: 
 <input id="newTime" type="datetime-local" />
@@ -262,10 +390,13 @@ Hours:
 <input id="extraDuration" type="number" />
 <button id="segment">Add time</button>
 </div>
-<div id="action"></div>
-<hr />
-<div>Device ID: <input id="deviceid" /></div>
-<div>Access Token: <input id="access_token" /></div>
+
+<div id="action">Placeholder</div>
+    </div>
+    <div id="incentives">
+
+<div id="deviceid_div">Device ID: <input id="deviceid" /></div>
+<div id="access_token_div">Access Token: <input id="access_token" /></div>
 
 <br />
 <button id="buzz" class="btn"><span>🔊</span></button>
@@ -278,6 +409,8 @@ Hours:
 <button id="level2" class="btn"><span>🗲●●○</span></button>
 <button id="level3" class="btn"><span>🗲●●●</span></button>
 
+    </div>
+</div>
 
 </body>
 </html>
