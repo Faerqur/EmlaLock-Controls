@@ -76,6 +76,15 @@ $(function() {
             $('#profile').css('display', 'none')
         }
     }
+    
+    function sanitizeColor(color) {
+        if (color.substr(0, 1) == 'r') {
+            color = pSBC(0, color, 'c')
+        } else if(color.substr(0, 1) != '#') {
+            color = '#' + color
+        }
+        return color
+    }
 
     function setFromUrlParams() {
 	    if($.urlParam('userid') !== null) {
@@ -85,19 +94,13 @@ $(function() {
             $('body').css('background-image', 'linear-gradient(#000000c0, #000000c0), url(\''+$.urlParam('bg')+'\')')
         }
         if($.urlParam('primary') !== null) {
-            PRIMARY_COLOR = $.urlParam('primary')
-            if (PRIMARY_COLOR.substr(0,1) == 'r') {
-                PRIMARY_COLOR = pSBC(0, PRIMARY_COLOR, 'c')
-            }
+            PRIMARY_COLOR = sanitizeColor($.urlParam('primary'))
             PRIMARY_COLOR_VAR = PRIMARY_COLOR.substr(0,7) + '30'
             $('#profile').css('background-color', PRIMARY_COLOR_VAR)
             $('#profile').css('box-shadow', '0 0 40px 20px ' + PRIMARY_COLOR_VAR)
         }
         if($.urlParam('secondary') !== null) {
-            SECONDARY_COLOR = $.urlParam('secondary')
-            if (SECONDARY_COLOR.substr(0,1) == 'r') {
-                SECONDARY_COLOR = pSBC(0, SECONDARY_COLOR, 'c')
-            }
+            SECONDARY_COLOR = sanitizeColor($.urlParam('secondary'))
             SECONDARY_COLOR_VAR = SECONDARY_COLOR.substr(0,7)
             $('body').css('color', SECONDARY_COLOR)
         }
