@@ -142,6 +142,9 @@ $(function() {
                 total /= 1000
 
                 if (COUNTDOWN) {
+                    if(COUNTDOWN.getTime() <= 0) {
+                        COUNTDOWN.restart()
+                    }
                     COUNTDOWN.addTime(remaining - COUNTDOWN.getTime())
                 } else {
                     setCountdown(total, remaining)
