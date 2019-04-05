@@ -12,6 +12,7 @@ var USERID
 var URL = 'https://www.emlalock.com/plugin/counter'
 
 var COUNTDOWN
+var AVATAR = false
 
 var PRIMARY_COLOR = '#7700bcff'
 var PRIMARY_COLOR_VAR = '#7700bc30'
@@ -64,10 +65,15 @@ $(function() {
     
     function makeVisible() {
         if(nonEmpty(USERID)) {
-            $('#profile').css('display', 'block')
             $('#countdown').css('display', 'flex')
         } else {
-            $('#profile, #countdown').css('display', 'none')
+            $('#countdown').css('display', 'none')
+        }
+
+        if(nonEmpty(USERID) && AVATAR) {
+            $('#profile').css('display', 'block')
+        } else {
+            $('#profile').css('display', 'none')
         }
     }
 
@@ -138,7 +144,14 @@ $(function() {
     }
 
     function load() {
-        $('#avatar').attr('src', 'https://www.emlalock.com/images/profile/' + USERID + '.jpg')
+        var url_img = 'https://www.emlalock.com/images/profile/' + USERID + '.jpg'
+        $.ajax({url: url_img, type: 'HEAD',
+            success: function () {
+                $('#avatar').attr('src', url_img)
+                AVATAR = true
+                makeVisible()
+            }
+        })
         reloadCounters()
     }
 
