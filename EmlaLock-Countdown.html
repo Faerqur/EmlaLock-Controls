@@ -101,6 +101,9 @@ $(function() {
             SECONDARY_COLOR_VAR = SECONDARY_COLOR.substr(0,7)
             $('body').css('color', SECONDARY_COLOR)
         }
+        if($.urlParam('name') !== null) {
+            $('title, #username').text($.urlParam('name'))
+        }
     }
     
     function setCountdown(total, remaining) {
