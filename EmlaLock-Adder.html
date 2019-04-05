@@ -248,30 +248,27 @@ $(function() {
             addTime(amount)
         }
     })
-    /*$('#buzz').on('click', function () {
-        sendCommand('buzzer')
-    })*/
     $('#buzz').whenPressed(function () {
         sendCommand('buzzer')
     }, 250)
-    $('#level1').on('click', function () {
-        sendCommand('shocker', 15)
-    })
-    $('#level2').on('click', function () {
+    $('#level1').whenPressed(function () {
         sendCommand('shocker', 20)
-    })
-    $('#level3').on('click', function () {
-        sendCommand('shocker', 30)
-    })
-    $('#levelVib1').on('click', function () {
+    }, 250)
+    $('#level2').whenPressed(function () {
+        sendCommand('shocker', 33)
+    }, 250)
+    $('#level3').whenPressed(function () {
+        sendCommand('shocker', 50)
+    }, 250)
+    $('#levelVib1').whenPressed(function () {
         sendCommand('vibrator', 40)
-    })
-    $('#levelVib2').on('click', function () {
+    }, 250)
+    $('#levelVib2').whenPressed(function () {
         sendCommand('vibrator', 60)
-    })
-    $('#levelVib3').on('click', function () {
+    }, 250)
+    $('#levelVib3').whenPressed(function () {
         sendCommand('vibrator', 80)
-    })
+    }, 250)
 
 
     setFromUrlParams()
