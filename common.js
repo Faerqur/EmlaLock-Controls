@@ -52,6 +52,7 @@ function calculateTheme(theme) {
         $.THEME[key] = sanitizeColor(theme[key])
     })
     $.THEME.primary_var = resetAlpha($.THEME.primary, '30')
+    $.THEME.primary = resetAlpha($.THEME.primary)
     $.THEME.secondary_var = resetAlpha($.THEME.secondary)
     $.THEME.bgimage = theme.bgimage
     $.THEME.COUNTDOWN = {
@@ -116,4 +117,24 @@ function reloadCountdown() {
 
 function redirect() {
     window.location.assign(window.location.href.replace(window.location.search,''))
+}
+
+$.fn.whenPressed = function (action, period) {
+    function engine(action) {
+        var performer = null
+        var start = function(e) {
+            e.preventDefault()
+            action()
+	    performer = setInterval(action, period)
+        }
+        var end = function(e) {
+	    clearInterval(performer)
+        }
+	return [start, end]
+    }
+
+    var handlers = engine(action)
+
+    this.on('touchstart mousedown', handlers[0])
+    this.on('touchend mouseup', handlers[1])
 }

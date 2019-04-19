@@ -18,43 +18,9 @@ body {
 }
 
 #field {
-    justify-items: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    display: grid;
     grid-gap: 10%;
     grid-template: minmax(200px, 30%) minmax(200px, 1fr) / 10% 1fr 10%;
     grid-template-areas:
     ". profile ."
     ". countdown .";
-}
-
-#profile {
-    background-color: #7700bc30;
-    grid-area: profile;
-    box-shadow: 0 0 40px 20px #7700bc30;
-    text-align: center;
-    font-family: Ruthie;
-    font-size: 200%;
-}
-
-#countdown {
-    justify-self: stretch;
-    align-self: stretch;
-    grid-area: countdown;
-    display: flex;
-    justify-content: center;
-}
-
-#face {
-    width: 100%;
-}
-
-.time_circles {
-    height: inherit !important;
-}
-
-#profile, #countdown {
-    display: none;
 }
