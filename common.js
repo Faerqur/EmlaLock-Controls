@@ -52,7 +52,7 @@ function calculateTheme(theme) {
         $.THEME[key] = sanitizeColor(theme[key])
     })
     $.THEME.primary_var = resetAlpha($.THEME.primary, '30')
-    $.THEME.secondary_var = resetAlpha($.THEME.secondary, 'ff')
+    $.THEME.secondary_var = resetAlpha($.THEME.secondary)
     $.THEME.bgimage = theme.bgimage
     $.THEME.COUNTDOWN = {
         circle_bg_color: pSBC(.67, $.THEME.secondary, $.THEME.bgcolor),

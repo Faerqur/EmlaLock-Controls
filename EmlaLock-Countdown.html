@@ -1,254 +1,82 @@
 <html>
 <head>
 <title>EmlaLock Countdown</title>
-<style>button {margin: 1em 1em 1em 1em;}</style>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<link href="countdown.css" rel="stylesheet">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript" src="TimeCircles.js"></script>
 <link href="TimeCircles.css" rel="stylesheet">
+<script type="text/javascript" src="pSBC.js"></script>
+<script type="text/javascript" src="common.js"></script>
 <script type="text/javascript">
 'use strict'
 
-var USERID
-var URL = 'https://www.emlalock.com/plugin/counter'
+const URL = 'https://www.emlalock.com/plugin/counter'
+const URL_IMG = 'https://www.emlalock.com/images/profile/'
 
-var COUNTDOWN
-var AVATAR = false
+let COUNTDOWN
+let AVATAR = false
 
-var PRIMARY_COLOR = '#7700bcff'
-var PRIMARY_COLOR_VAR = '#7700bc30'
-var SECONDARY_COLOR = '#eeeeeea0'
-var SECONDARY_COLOR_VAR = '#eeeeee'
-
-// Version 4.0
-const pSBC=(p,c0,c1,l)=>{
-	let r,g,b,P,f,t,h,i=parseInt,m=Math.round,a=typeof(c1)=="string";
-	if(typeof(p)!="number"||p<-1||p>1||typeof(c0)!="string"||(c0[0]!='r'&&c0[0]!='#')||(c1&&!a))return null;
-	if(!this.pSBCr)this.pSBCr=(d)=>{
-		let n=d.length,x={};
-		if(n>9){
-			[r,g,b,a]=d=d.split(","),n=d.length;
-			if(n<3||n>4)return null;
-			x.r=i(r[3]=="a"?r.slice(5):r.slice(4)),x.g=i(g),x.b=i(b),x.a=a?parseFloat(a):-1
-		}else{
-			if(n==8||n==6||n<4)return null;
-			if(n<6)d="#"+d[1]+d[1]+d[2]+d[2]+d[3]+d[3]+(n>4?d[4]+d[4]:"");
-			d=i(d.slice(1),16);
-			if(n==9||n==5)x.r=d>>24&255,x.g=d>>16&255,x.b=d>>8&255,x.a=m((d&255)/0.255)/1000;
-			else x.r=d>>16,x.g=d>>8&255,x.b=d&255,x.a=-1
-		}return x};
-	h=c0.length>9,h=a?c1.length>9?true:c1=="c"?!h:false:h,f=pSBCr(c0),P=p<0,t=c1&&c1!="c"?pSBCr(c1):P?{r:0,g:0,b:0,a:-1}:{r:255,g:255,b:255,a:-1},p=P?p*-1:p,P=1-p;
-	if(!f||!t)return null;
-	if(l)r=m(P*f.r+p*t.r),g=m(P*f.g+p*t.g),b=m(P*f.b+p*t.b);
-	else r=m((P*f.r**2+p*t.r**2)**0.5),g=m((P*f.g**2+p*t.g**2)**0.5),b=m((P*f.b**2+p*t.b**2)**0.5);
-	a=f.a,t=t.a,f=a>=0||t>=0,a=f?a<0?t:t<0?a:a*P+t*p:0;
-	if(h)return"rgb"+(f?"a(":"(")+r+","+g+","+b+(f?","+m(a*1000)/1000:"")+")";
-	else return"#"+(4294967296+r*16777216+g*65536+b*256+(f?m(a*255):0)).toString(16).slice(1,f?undefined:-2)
+const DEFAULT_SETTINGS = {
+    userid: null,
+    primary: '#7700bcff',
+    primary_var: '#7700bc30',
+    secondary: '#eeeeeea0',
+    secondary_var: '#eeeeee',
+    bgcolor: '#000000c0',
+    bgimage: 'nice.jpg'
 }
 
 $(function() {
-    $.urlParam = function(name){
-        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-        if (results==null){
-           return null;
-        }
-        else{
-           return decodeURI(results[1]) || 0;
-        }
-    }
+    loadQueryString()
+    loadSettings(DEFAULT_SETTINGS)
+    calculateTheme($.SETTINGS)
+    setTheme($.THEME)
+    setTitle($.SETTINGS.name)
 
-    var startStamp
-    var endStamp
-    
-    function nonEmpty(val) {
-        return val && val != '0'
-    }
-    
     function makeVisible() {
-        if(nonEmpty(USERID)) {
+        if(nonEmpty($.SETTINGS.userid)) {
             $('#countdown').css('display', 'flex')
         } else {
             $('#countdown').css('display', 'none')
         }
 
-        if(nonEmpty(USERID) && AVATAR) {
+        if(nonEmpty($.SETTINGS.userid) && AVATAR) {
             $('#profile').css('display', 'block')
         } else {
             $('#profile').css('display', 'none')
         }
     }
-    
-    function sanitizeColor(color) {
-        if (color.substr(0, 1) == 'r') {
-            color = pSBC(0, color, 'c')
-        } else if(color.substr(0, 1) != '#') {
-            color = '#' + color
-        }
-        return color
-    }
-
-    function setFromUrlParams() {
-	    if($.urlParam('userid') !== null) {
-	        USERID = $.urlParam('userid')
-        }
-        if($.urlParam('bg') !== null) {
-            $('body').css('background-image', 'linear-gradient(#000000c0, #000000c0), url(\''+$.urlParam('bg')+'\')')
-        }
-        if($.urlParam('primary') !== null) {
-            PRIMARY_COLOR = sanitizeColor($.urlParam('primary'))
-            PRIMARY_COLOR_VAR = PRIMARY_COLOR.substr(0,7) + '30'
-            $('#profile').css('background-color', PRIMARY_COLOR_VAR)
-            $('#profile').css('box-shadow', '0 0 40px 20px ' + PRIMARY_COLOR_VAR)
-        }
-        if($.urlParam('secondary') !== null) {
-            SECONDARY_COLOR = sanitizeColor($.urlParam('secondary'))
-            SECONDARY_COLOR_VAR = SECONDARY_COLOR.substr(0,7)
-            $('body').css('color', SECONDARY_COLOR)
-        }
-        if($.urlParam('name') !== null) {
-            $('title, #username').text($.urlParam('name'))
-        }
-    }
-    
-    function setCountdown(total, remaining) {
-        $('#face').attr('data-timer', remaining)
-        COUNTDOWN = $('#face').TimeCircles({
-            total_duration: total,
-            count_past_zero: false,
-            animation: 'smooth',
-            circle_bg_color: pSBC(.5, SECONDARY_COLOR_VAR, '#80808040'),
-            fg_width: 0.05,
-            bg_width: 0.7,
-            time: {
-                Days: { color: pSBC(0, PRIMARY_COLOR, SECONDARY_COLOR_VAR) },
-                Hours: { color: pSBC(.25, PRIMARY_COLOR, SECONDARY_COLOR_VAR) },
-                Minutes: { color: pSBC(.5, PRIMARY_COLOR, SECONDARY_COLOR_VAR) },
-                Seconds: { color: pSBC(.75, PRIMARY_COLOR, SECONDARY_COLOR_VAR) }
-            }
-        })
-    }
-
-    function reloadCounters() {
-        $.get(URL, {
-                userid: USERID
-            })
-            .done(function(data) {
-                var stringDates = data.match(/Date\(\d+\)/g)
-                startStamp = new Date(parseInt(stringDates[0].match(/\d+/g)[0]))
-                endStamp = new Date(parseInt(stringDates[1].match(/\d+/g)[0]))
-
-                var remaining = endStamp.getTime() - new Date().getTime()
-                var total = endStamp.getTime() - startStamp.getTime()
-                remaining /= 1000
-                total /= 1000
-
-                if (COUNTDOWN) {
-                    if(COUNTDOWN.getTime() <= 0) {
-                        COUNTDOWN.restart()
-                    }
-                    COUNTDOWN.addTime(remaining - COUNTDOWN.getTime())
-                } else {
-                    setCountdown(total, remaining)
-                }
-            })
-    }
 
     function load() {
-        var url_img = 'https://www.emlalock.com/images/profile/' + USERID + '.jpg'
-        $.ajax({url: url_img, type: 'HEAD',
+        const img = URL_IMG + $.SETTINGS.userid + '.jpg'
+        $.ajax({url: img, type: 'HEAD',
             success: function () {
-                $('#avatar').attr('src', url_img)
+                $('#avatar').attr('src', img)
                 AVATAR = true
                 makeVisible()
             }
         })
-        reloadCounters()
+        reloadCountdown()
     }
 
-    setFromUrlParams()
     load()
     $(window).resize(function () {
         COUNTDOWN.rebuild()
     })
-    setInterval(reloadCounters, 60*1000)
+    setInterval(reloadCountdown, 60*1000)
     makeVisible()
 })
 </script>
-<style>
-@font-face {
-    font-family: Ruthie;
-    src: url('rothie.woff');
-}
-
-html, body {
-    width: 100%;
-    height: 100%;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    background-image: linear-gradient(#000000c0, #000000c0), url('nice.jpg');
-    background-size: cover;
-    background-position: center;
-    color: #eeeeeea0;
-}
-
-#field {
-    justify-items: center;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    display: grid;
-    grid-gap: 10%;
-    grid-template: minmax(200px, 30%) minmax(200px, 1fr) / 10% 1fr 10%;
-    grid-template-areas:
-    ". profile ."
-    ". countdown .";
-}
-
-#profile {
-    background-color: #7700bc30;
-    grid-area: profile;
-    box-shadow: 0 0 40px 20px #7700bc30;
-    text-align: center;
-    font-family: Ruthie;
-    font-size: 200%;
-}
-
-#countdown {
-    justify-self: stretch;
-    align-self: stretch;
-    grid-area: countdown;
-    display: flex;
-    justify-content: center;
-}
-
-#face {
-    width: 100%;
-}
-
-.time_circles {
-    height: inherit !important;
-}
-
-#profile, #countdown {
-    display: none;
-}
-</style>
-
 </head>
 <body>
-
-<div id="field">
+  <div id="field">
     <div id="profile">
-        <img id="avatar" alt="Avatar"/><br />
-        <span id="username"></span>
+      <img id="avatar" alt="Avatar"/><br />
+      <span id="username"></span>
     </div>
     <div id="countdown">
-        <div id="face"></div>
-    </div>    
- </div>
-
+      <div id="face"></div>
+    </div>
+  </div>
 </body>
 </html>
-
