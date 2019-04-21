@@ -1,6 +1,6 @@
 # How to use
 
-## EmlaLock-Countdown
+## [EmlaLock-Countdown](https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Countdown.html)
 
 The URL is `https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Countdown.html?userid=&name=&primary=&secondary=&bg=`
 
@@ -12,9 +12,9 @@ The URL is `https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Countdown.html?
 
 The color format is either `rgb(255,255,255)`/`rgba(255,255,255,1)` or `FFFFFF`/`FFFFFFFF`.
 
-## EmlaLock-Adder
+## [EmlaLock-Adder](https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Adder.html)
 
-The URL is `https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Countdown.html?userid=&apikey=&deviceid=&access_token=`
+The URL is `https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Adder.html?userid=&apikey=&deviceid=&access_token=`
 
 * `userid` -- login into the EmlaLock go to your profile page and from the URL copy your profile ID
 * `apikey` -- go to the Settings, then click on the tab API, there's the API key
