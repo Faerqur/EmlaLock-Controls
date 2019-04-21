@@ -1,0 +1,38 @@
+#field {
+    grid-template: minmax(100px, 20%) minmax(100px, 2fr) minmax(150px, 3fr) / minmax(150px, 20%) 1fr 20%;
+    grid-template-areas:
+    "profile countdown countdown"
+    "profile duration ."
+    ". incentives .";
+}
+
+#duration {
+    background-color: #00ff0030;
+    grid-area: duration;
+}
+
+#incentives {
+    background-color: #0000ff30;
+    grid-area: incentives;
+}
+
+#duration, #incentives {
+    display: none;
+}
+
+#action {
+    display: none;
+}
+
+#userid_div, #apikey_div, #deviceid_div, #access_token_div, #elapsed_div, #remaining_div {
+    display: none;
+}
+
+button {
+    margin: 1em 1em 1em 1em;
+}
+
+#face {
+    width: inherit !important;
+    max-width: 100%;
+}
