@@ -75,9 +75,9 @@ $(function() {
 
     function populateLinks() {
       const COUNTDOWN_URL = './EmlaLock-Countdown.html'
+      $('#set').attr('href', '?' + makeQueryString($.SETTINGS, WHICH) + 'set')
       $('#template').attr('href', '?' + makeQueryString($.SETTINGS, WHICH))
       $('#link').attr('href', COUNTDOWN_URL + '?' + makeQueryString($.SETTINGS, WHICH))
-      $('#linkset').attr('href', COUNTDOWN_URL + '?' + makeQueryString($.SETTINGS, WHICH) + 'set')
     }
 
     $('#form input').on('input propertychange', function () {
@@ -110,9 +110,10 @@ $(function() {
       <div class="buttonrow">
         <!--<button id="reset">Reset</button>-->
         <!--<button id="set">Set</button>-->
-        <a href="#" id="template">Preset Settings URL</a>
-        <a href="#" id="link">Countdown Public</a>
-        <a href="#" id="linkset">Countdown My Own</a>
+        <a href="#" id="set">Set</a>
+        <a href="?reset">Reset</a>
+        <a href="#" id="template">Template</a>
+        <a href="#" id="link">Countdown Export</a>
       </div>
     </div>
   </div>
