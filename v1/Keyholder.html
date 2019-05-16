@@ -22,9 +22,6 @@ const MAX_AMOUNT = 60 * 60 * 24 * 7
 let COUNTDOWN
 
 $(function() {
-    let startStamp
-    let endStamp
-
     function makeVisible() {
         if(nonEmpty($.SETTINGS.userid)) {
             $('#profile').css('display', 'block')
@@ -107,7 +104,7 @@ $(function() {
 
     $('#point').on('click', function() {
         const newTime = Date.parse($('#newTime').val())
-        const amount = (newTime - endStamp) / 1000
+        const amount = (newTime - $.TIMEPOINTS.end) / 1000
         addValidTime(amount)
     })
     $('#segment').on('click', function() {

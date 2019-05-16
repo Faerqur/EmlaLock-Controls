@@ -123,6 +123,11 @@ function reloadCountdown() {
                 total = endStamp.getTime() - startStamp.getTime()
                 remaining /= 1000
                 total /= 1000
+
+                $.TIMEPOINTS = {
+                    start: startStamp,
+                    end: endStamp
+                }
             }
 
             if (COUNTDOWN) {
