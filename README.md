@@ -1,5 +1,9 @@
 # How to use the Faerqur's interface for EmlaLock
 
+## Session
+
+In EmlaLock, create a session with visible counters and, ideally, make initial duration and minimal duration the same amount.
+
 ## [Countdown](https://faerqur.github.io/EmlaLock-Controls/v1/Countdown.html)
 
 ### [Settings](https://faerqur.github.io/EmlaLock-Controls/v1/Countdown-Settings.html)
@@ -55,3 +59,5 @@ The last section contains:
 ## Misc
 
 You can turn the export links (**Countdown Export** & **Keyholder Export**) to links which save the settings into the Local Storage by appending the word `set` at the end of the URL.
+
+The Countdown refreshes the amount every minute, i.e. if your keyholder adds time the Countdown will reflect that in a minute.
