@@ -1,5 +1,15 @@
 'use strict'
 
+const DEFAULT_SETTINGS = {
+    userid: null,
+    primary: '#7700bcff',
+    primary_var: '#7700bc30',
+    secondary: '#eeeeeea0',
+    secondary_var: '#eeeeee',
+    bgcolor: '#000000c0',
+    bgimage: 'nice.jpg'
+}
+
 function loadQueryString() {
     $.urlParams = function(input) {
         let result = {}
@@ -20,7 +30,7 @@ function nonEmpty(val) {
 function sanitizeColor(color) {
     if (color.substr(0, 1) == 'r') {
         color = pSBC(0, color, 'c')
-    } else if(color.substr(0, 1) != '#') {
+    } else if (color.substr(0, 1) != '#') {
         color = '#' + color
     }
     return color
@@ -30,16 +40,15 @@ function resetAlpha(color, alpha = '') {
   return color.substr(0,7) + alpha
 }
 
-function loadSettings(defaultParams) {
-    const SETTINGS = 'SETTINGS'
-    let params = JSON.parse(localStorage.getItem(SETTINGS))
+function loadSettings(defaultParams, key = 'SETTINGS') {
+    let params = JSON.parse(localStorage.getItem(key))
     if (params === null) params = {}
     params = Object.assign(params, $.urlParams)
     if ('reset' in $.urlParams) {
-      localStorage.setItem(SETTINGS, JSON.stringify($.urlParams))
+      localStorage.setItem(key, JSON.stringify($.urlParams))
       redirect()
     } else if ('set' in $.urlParams) {
-      localStorage.setItem(SETTINGS, JSON.stringify(params))
+      localStorage.setItem(key, JSON.stringify(params))
       redirect()
     }
     $.SETTINGS = Object.assign(defaultParams, params)
@@ -54,7 +63,7 @@ function calculateTheme(theme) {
     $.THEME.primary_var = resetAlpha($.THEME.primary, '30')
     $.THEME.primary = resetAlpha($.THEME.primary)
     $.THEME.secondary_var = resetAlpha($.THEME.secondary)
-    $.THEME.bgimage = theme.bgimage
+    $.THEME.bgimage = decodeURIComponent(theme.bgimage)
     $.THEME.COUNTDOWN = {
         circle_bg_color: pSBC(.67, $.THEME.secondary, $.THEME.bgcolor),
         time: {
@@ -66,15 +75,51 @@ function calculateTheme(theme) {
     }
 }
 
+function cssVariable(name, ...value) {
+  const css = $(':root').get(0).style
+  if (value.length == 0) {
+    return css.getPropertyValue(name)
+  } else {
+    css.setProperty(name, value[0])
+  }
+}
+
 function setTheme(theme) {
-    $('#profile').css('background-color', theme.primary_var)
+    cssVariable('--primary', theme.primary)
+    cssVariable('--primary-var', theme.primary_var)
+    cssVariable('--secondary', theme.secondary)
+    cssVariable('--secondary-var', theme.secondary_var)
+    cssVariable('--bgcolor', theme.bgcolor)
+    cssVariable('--bgimage', "url('" + theme.bgimage + "')")
+
+/*    $('#profile').css('background-color', theme.primary_var)
     $('#profile').css('box-shadow', '0 0 40px 20px ' + theme.primary_var)
     $('body').css('color', theme.secondary)
     $('body').css('background-image', 'linear-gradient(' + theme.bgcolor + ', ' + theme.bgcolor + '), url(\'' + theme.bgimage + '\')')
+
+    $('#form').css('background-color', theme.primary_var)
+    $('#form').css('box-shadow', '0 0 3em 1.5em ' + theme.primary_var)
+    $('#form').css('border-color', theme.primary)
+
+    $('input').css('background-color', theme.secondary_var)
+    $('input').css('color', theme.primary)
+
+    $('button').css('background-color', theme.primary)
+    $('button').css('color', theme.secondary_var)
+
+    $(':focus').css('outline', 'auto 5px ' + theme.primary)
+    $('button:focus').css('outline', 'auto 5px ' + theme.secondary)
+
+    $('input[type=range]').css('background-color', 'transparent')
+
+    $('input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb, input[type=range]::-ms-thumb').css('background', theme.secondary)
+    $('input[type=range]:focus::-webkit-slider-thumb, input[type=range]:focus::-moz-range-thumb, input[type=range]:focus::-ms-thumb').css('background', theme.primary)
+
+    $('input[type=range]:focus::-webkit-slider-runnable-track, input[type=range]::-moz-range-track, input[type=range]::-ms-fill-lower, input[type=range]::-ms-fill-upper').css('background', theme.primary)*/
 }
 
 function setTitle(name) {
-    if(name !== null) {
+    if (name !== null) {
         $('title, #username').text(name)
     }
 }
@@ -105,7 +150,7 @@ function reloadCountdown() {
             total /= 1000
 
             if (COUNTDOWN) {
-                if(COUNTDOWN.getTime() <= 0) {
+                if (COUNTDOWN.getTime() <= 0) {
                     COUNTDOWN.restart()
                 }
                 COUNTDOWN.addTime(remaining - COUNTDOWN.getTime())
@@ -125,12 +170,12 @@ $.fn.whenPressed = function (action, period) {
         var start = function(e) {
             e.preventDefault()
             action()
-	    performer = setInterval(action, period)
+            performer = setInterval(action, period)
         }
         var end = function(e) {
-	    clearInterval(performer)
+          clearInterval(performer)
         }
-	return [start, end]
+        return [start, end]
     }
 
     var handlers = engine(action)

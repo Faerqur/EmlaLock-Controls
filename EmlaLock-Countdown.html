@@ -17,19 +17,9 @@ const URL_IMG = 'https://www.emlalock.com/images/profile/'
 let COUNTDOWN
 let AVATAR = false
 
-const DEFAULT_SETTINGS = {
-    userid: null,
-    primary: '#7700bcff',
-    primary_var: '#7700bc30',
-    secondary: '#eeeeeea0',
-    secondary_var: '#eeeeee',
-    bgcolor: '#000000c0',
-    bgimage: 'nice.jpg'
-}
-
 $(function() {
     loadQueryString()
-    loadSettings(DEFAULT_SETTINGS)
+    loadSettings(DEFAULT_SETTINGS, 'COUNTDOWN_SETTINGS')
     calculateTheme($.SETTINGS)
     setTheme($.THEME)
     setTitle($.SETTINGS.name)

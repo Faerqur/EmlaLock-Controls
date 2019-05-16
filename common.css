@@ -1,3 +1,12 @@
+:root {
+  --primary: #7700bcff;
+  --primary-var: #7700bc30;
+  --secondary: #eeeeeea0;
+  --secondary-var: #eeeeee;
+  --bgcolor: #000000c0;
+  --bgimage: url('nice.jpg');
+}
+
 @font-face {
     font-family: Ruthie;
     src: url('rothie.woff');
@@ -11,10 +20,10 @@ html, body {
 body {
     margin: 0;
     padding: 0;
-    background-image: linear-gradient(#000000c0, #000000c0), url('nice.jpg');
+    background-image: linear-gradient(var(--bgcolor), var(--bgcolor)), var(--bgimage);
     background-size: cover;
     background-position: center;
-    color: #eeeeeea0;
+    color: var(--secondary);
 }
 
 #field {
@@ -26,9 +35,9 @@ body {
 }
 
 #profile {
-    background-color: #7700bc30;
+    background-color: var(--primary-var);
     grid-area: profile;
-    box-shadow: 0 0 40px 20px #7700bc30;
+    box-shadow: 0 0 40px 20px var(--primary-var);
     text-align: center;
     font-family: Ruthie;
     font-size: 200%;

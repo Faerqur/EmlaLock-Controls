@@ -1,0 +1,120 @@
+<html>
+<head>
+<title>EmlaLock Countdown Settings</title>
+<link href="common.css" rel="stylesheet">
+<link href="countdown-settings.css" rel="stylesheet">
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="pSBC.js"></script>
+<script type="text/javascript" src="common.js"></script>
+<script type="text/javascript">
+'use strict'
+
+$(function() {
+    function customizePage() {
+      calculateTheme($.SETTINGS)
+      setTheme($.THEME)
+      setTitle($.SETTINGS.name)
+    }
+
+    function getColor(colorInput, alphaInput) {
+      return $(colorInput).val() + parseInt($(alphaInput).val()).toString(16).padStart(2, '0')
+    }
+
+    function setColor(colorInput, alphaInput, value) {
+      $(colorInput).val(value.substr(0, 7))
+      $(alphaInput).val(parseInt(value.substr(7), 16))
+    }
+
+    function setFormValues() {
+      $('#name').val($.SETTINGS.name)
+      $('#userid').val($.SETTINGS.userid)
+      $('#bgimage').val(decodeURIComponent($.SETTINGS.bgimage))
+      setColor('#primary', '#primary-alpha', $.THEME.primary)
+      setColor('#secondary', '#secondary-alpha', $.THEME.secondary)
+      setColor('#bgcolor', '#bgcolor-alpha', $.THEME.bgcolor)
+    }
+
+    function getFormValues() {
+      const primary = getColor('#primary', '#primary-alpha')
+      const secondary = getColor('#secondary', '#secondary-alpha')
+      const bgcolor = getColor('#bgcolor', '#bgcolor-alpha')
+      const settings = {
+        userid: $('#userid').val(),
+        name: $('#name').val(),
+        primary: primary,
+        secondary: secondary,
+        bgcolor: bgcolor,
+        bgimage: encodeURIComponent($('#bgimage').val())
+      }
+      return settings
+    }
+
+    function makeQueryString(settings, ...which) {
+      if (which.length == 0) {
+        which = settings.keys()
+      } else {
+        which = which[0]
+      }
+      let query = ''
+      which.forEach(function (key) {
+        if (!(key in settings)) {
+          return
+        }
+        let val = settings[key]
+        if (val == null) {
+          val = ''
+        } else if (val.startsWith('#')) {
+          val = val.substr(1)
+        }
+        query += key + '=' + val + '&'
+      })
+      return query
+    }
+
+    const WHICH = ['primary', 'secondary', 'bgcolor', 'bgimage', 'name', 'userid']
+
+    function populateLinks() {
+      const COUNTDOWN_URL = './EmlaLock-Countdown.html'
+      $('#template').attr('href', '?' + makeQueryString($.SETTINGS, WHICH))
+      $('#link').attr('href', COUNTDOWN_URL + '?' + makeQueryString($.SETTINGS, WHICH))
+      $('#linkset').attr('href', COUNTDOWN_URL + '?' + makeQueryString($.SETTINGS, WHICH) + 'set')
+    }
+
+    $('#form input').on('input propertychange', function () {
+      const settings = getFormValues()
+      $.SETTINGS = settings
+      populateLinks()
+      customizePage()
+      setFormValues()
+    })
+
+    loadQueryString()
+    loadSettings(DEFAULT_SETTINGS, 'COUNTDOWN_SETTINGS')
+    populateLinks()
+    customizePage()
+    setFormValues()
+})
+</script>
+</head>
+<body>
+  <div id="field">
+    <div id="form">
+      <div><label for="userid">User ID</label> <input id="userid" /></div>
+      <div><label for="name">Name</label> <input id="name" /></div>
+      <hr />
+      <div><label for="primary">Primary color</label> <input id="primary" type="color" value="#7700bc" /> <input id="primary-alpha" type="range" min="0" max="255" value="255"/></div>
+      <div><label for="secondary">Secondary color</label> <input id="secondary" type="color" value="#eeeeee" /> <input id="secondary-alpha" type="range" min="0" max="255" value="160"/></div>
+      <div><label for="bgcolor">Background overlay color</label> <input id="bgcolor" type="color" value="#000000"/> <input id="bgcolor-alpha" type="range" min="0" max="255" value="192"/></div>
+      <div><label for="bgimage">Background image URL</label> <input id="bgimage" /></div>
+      <hr />
+      <div class="buttonrow">
+        <!--<button id="reset">Reset</button>-->
+        <!--<button id="set">Set</button>-->
+        <a href="#" id="template">Preset Settings URL</a>
+        <a href="#" id="link">Countdown Public</a>
+        <a href="#" id="linkset">Countdown My Own</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

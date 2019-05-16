@@ -1,22 +1,3 @@
-@font-face {
-    font-family: Ruthie;
-    src: url('rothie.woff');
-}
-
-html, body {
-    width: 100%;
-    height: 100%;
-}
-
-body {
-    margin: 0;
-    padding: 0;
-    background-image: linear-gradient(#000000c0, #000000c0), url('nice.jpg');
-    background-size: cover;
-    background-position: center;
-    color: #eeeeeea0;
-}
-
 #field {
     grid-gap: 10%;
     grid-template: minmax(200px, 30%) minmax(200px, 1fr) / 10% 1fr 10%;
