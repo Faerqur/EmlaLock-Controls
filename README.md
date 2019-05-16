@@ -1,25 +1,57 @@
-# How to use
+# How to use the Faerqur's interface for EmlaLock
 
-## [EmlaLock-Countdown](https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Countdown.html)
+## [Countdown](https://faerqur.github.io/EmlaLock-Controls/v1/Countdown.html)
 
-The URL is `https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Countdown.html?userid=&name=&primary=&secondary=&bg=`
+### [Settings](https://faerqur.github.io/EmlaLock-Controls/v1/Countdown-Settings.html)
 
-* `userid` -- login into the EmlaLock go to your profile page and from the URL copy your profile ID
-* `name` -- provide the caption text under your profile picture
-* `primary` -- change the primary color
-* `secondary` -- change the secondary color
-* `bg` -- provide the url to a specific image which will be used as the background
+The first section contains:
 
-The color format is either `rgb(255,255,255)`/`rgba(255,255,255,1)` or `FFFFFF`/`FFFFFFFF`.
+* **User ID** -- login into the EmlaLock go to [the settings](https://emlalock.com/#/settings), choose the API tab and copy your User ID from there.
+* **Name** (optional) -- provide the caption text under your profile picture.
 
-## [EmlaLock-Adder](https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Adder.html)
+The second section contains:
 
-The URL is `https://faerqur.github.io/EmlaLock-Controls/EmlaLock-Adder.html?userid=&apikey=&deviceid=&access_token=`
+* **Primary color** -- it's mainly used for the circular bars of the countdown.
+* **Secondary color** -- this is the color for text.
+* **Background overlay color** -- it's layed over the background image.
+* **Background image URL** -- provide the url to a specific image which will be used as the background.
 
-* `userid` -- login into the EmlaLock go to your profile page and from the URL copy your profile ID
-* `apikey` -- go to the Settings, then click on the tab API, there's the API key
+The last section contains:
 
-Optional:
+* **Set** -- sets the current settings into the Local Storage of your device.
+* **Reset** -- resets the settings to the default values.
+* **Template** -- opens a new tab with this page with current settings as a template for sharing.
+* **Countdown Export** -- opens a new tab with the actual Countdown page for sharing.
 
-* `deviceid` -- the ID for a particle.io device
-* `access_token` -- the access token for a particle.io device
+## [Keyholder](https://faerqur.github.io/EmlaLock-Controls/v1/Keyholder.html)
+
+### [Settings](https://faerqur.github.io/EmlaLock-Controls/v1/Keyholder-Settings.html)
+
+
+The first section contains:
+
+* **User ID** -- login into the EmlaLock go to [the settings](https://emlalock.com/#/settings), choose the API tab and copy your User ID from there.
+* **API Key** -- login into the EmlaLock go to [the settings](https://emlalock.com/#/settings), choose the API tab and copy your API Key from there.
+
+The second sections contains (optional):
+
+* **Device ID** -- the ID for a `particle.io` device.
+* **Access Token** -- the access token for a `particle.io` device.
+
+The third section contains:
+
+* **Primary color** -- it's mainly used for the circular bars of the countdown.
+* **Secondary color** -- this is the color for text.
+* **Background overlay color** -- it's layed over the background image.
+* **Background image URL** -- provide the url to a specific image which will be used as the background.
+
+The last section contains:
+
+* **Set** -- sets the current settings into the Local Storage of your device.
+* **Reset** -- resets the settings to the default values.
+* **Template** -- opens a new tab with this page with current settings as a template for sharing.
+* **Keyholder Export** -- opens a new tab with the actual Keyholder page for sharing.
+
+## Misc
+
+You can turn the export links (**Countdown Export** & **Keyholder Export**) to links which save the settings into the Local Storage by appending the word `set` at the end of the URL.
