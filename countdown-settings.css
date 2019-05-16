@@ -53,7 +53,8 @@ input[type=range] {
   width: 15em !important;
 }
 
-a {
+#form a {
+  display: inline-block;
   background-color: var(--primary);
   color: var(--secondary);
   border: none;
@@ -65,11 +66,11 @@ a {
   cursor: pointer;
 }
 
-a:focus {
+#form a:focus {
   outline: auto 5px var(--secondary);
 }
 
-a:active {
+#form a:active {
   background-color: var(--secondary);
   color: var(--primary);
 }
