@@ -1,11 +1,8 @@
 'use strict'
 
 const DEFAULT_SETTINGS = {
-    userid: null,
     primary: '#7700bcff',
-    primary_var: '#7700bc30',
     secondary: '#eeeeeea0',
-    secondary_var: '#eeeeee',
     bgcolor: '#000000c0',
     bgimage: 'nice.jpg'
 }
@@ -37,7 +34,7 @@ function sanitizeColor(color) {
 }
 
 function resetAlpha(color, alpha = '') {
-  return color.substr(0,7) + alpha
+    return color.substr(0,7) + alpha
 }
 
 function loadSettings(defaultParams, key = 'SETTINGS') {
@@ -45,11 +42,11 @@ function loadSettings(defaultParams, key = 'SETTINGS') {
     if (params === null) params = {}
     params = Object.assign(params, $.urlParams)
     if ('reset' in $.urlParams) {
-      localStorage.setItem(key, JSON.stringify($.urlParams))
-      redirect()
+        localStorage.setItem(key, JSON.stringify($.urlParams))
+        redirect()
     } else if ('set' in $.urlParams) {
-      localStorage.setItem(key, JSON.stringify(params))
-      redirect()
+        localStorage.setItem(key, JSON.stringify(params))
+        redirect()
     }
     $.SETTINGS = Object.assign(defaultParams, params)
 }
@@ -76,46 +73,20 @@ function calculateTheme(theme) {
 }
 
 function cssVariable(name, ...value) {
-  const css = $(':root').get(0).style
-  if (value.length == 0) {
-    return css.getPropertyValue(name)
-  } else {
-    css.setProperty(name, value[0])
-  }
+    const css = $(':root').get(0).style
+    if (value.length == 0) {
+        return css.getPropertyValue(name)
+    } else {
+        css.setProperty(name, value[0])
+    }
 }
 
 function setTheme(theme) {
     cssVariable('--primary', theme.primary)
     cssVariable('--primary-var', theme.primary_var)
     cssVariable('--secondary', theme.secondary)
-    cssVariable('--secondary-var', theme.secondary_var)
     cssVariable('--bgcolor', theme.bgcolor)
     cssVariable('--bgimage', "url('" + theme.bgimage + "')")
-
-/*    $('#profile').css('background-color', theme.primary_var)
-    $('#profile').css('box-shadow', '0 0 40px 20px ' + theme.primary_var)
-    $('body').css('color', theme.secondary)
-    $('body').css('background-image', 'linear-gradient(' + theme.bgcolor + ', ' + theme.bgcolor + '), url(\'' + theme.bgimage + '\')')
-
-    $('#form').css('background-color', theme.primary_var)
-    $('#form').css('box-shadow', '0 0 3em 1.5em ' + theme.primary_var)
-    $('#form').css('border-color', theme.primary)
-
-    $('input').css('background-color', theme.secondary_var)
-    $('input').css('color', theme.primary)
-
-    $('button').css('background-color', theme.primary)
-    $('button').css('color', theme.secondary_var)
-
-    $(':focus').css('outline', 'auto 5px ' + theme.primary)
-    $('button:focus').css('outline', 'auto 5px ' + theme.secondary)
-
-    $('input[type=range]').css('background-color', 'transparent')
-
-    $('input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb, input[type=range]::-ms-thumb').css('background', theme.secondary)
-    $('input[type=range]:focus::-webkit-slider-thumb, input[type=range]:focus::-moz-range-thumb, input[type=range]:focus::-ms-thumb').css('background', theme.primary)
-
-    $('input[type=range]:focus::-webkit-slider-runnable-track, input[type=range]::-moz-range-track, input[type=range]::-ms-fill-lower, input[type=range]::-ms-fill-upper').css('background', theme.primary)*/
 }
 
 function setTitle(name) {
@@ -141,13 +112,18 @@ function reloadCountdown() {
         })
         .done(function(data) {
             const stringDates = data.match(/Date\(\d+\)/g)
-            const startStamp = new Date(parseInt(stringDates[0].match(/\d+/g)[0]))
-            const endStamp = new Date(parseInt(stringDates[1].match(/\d+/g)[0]))
+            let remaining = 0
+            let total = 0
 
-            let remaining = endStamp.getTime() - new Date().getTime()
-            let total = endStamp.getTime() - startStamp.getTime()
-            remaining /= 1000
-            total /= 1000
+            if (stringDates != null) {
+                const startStamp = new Date(parseInt(stringDates[0].match(/\d+/g)[0]))
+                const endStamp = new Date(parseInt(stringDates[1].match(/\d+/g)[0]))
+
+                remaining = endStamp.getTime() - new Date().getTime()
+                total = endStamp.getTime() - startStamp.getTime()
+                remaining /= 1000
+                total /= 1000
+            }
 
             if (COUNTDOWN) {
                 if (COUNTDOWN.getTime() <= 0) {
@@ -173,7 +149,7 @@ $.fn.whenPressed = function (action, period) {
             performer = setInterval(action, period)
         }
         var end = function(e) {
-          clearInterval(performer)
+            clearInterval(performer)
         }
         return [start, end]
     }
@@ -182,4 +158,35 @@ $.fn.whenPressed = function (action, period) {
 
     this.on('touchstart mousedown', handlers[0])
     this.on('touchend mouseup', handlers[1])
+}
+
+function getColor(colorInput, alphaInput) {
+    return $(colorInput).val() + parseInt($(alphaInput).val()).toString(16).padStart(2, '0')
+}
+
+function setColor(colorInput, alphaInput, value) {
+    $(colorInput).val(value.substr(0, 7))
+    $(alphaInput).val(parseInt(value.substr(7), 16))
+}
+
+function makeQueryString(settings, ...which) {
+    if (which.length == 0) {
+        which = settings.keys()
+    } else {
+        which = which[0]
+    }
+    let query = ''
+    which.forEach(function (key) {
+        if (!(key in settings)) {
+            return
+        }
+        let val = settings[key]
+        if (val == null) {
+            val = ''
+        } else if (val.startsWith('#')) {
+            val = val.substr(1)
+        }
+        query += key + '=' + val + '&'
+    })
+    return query
 }

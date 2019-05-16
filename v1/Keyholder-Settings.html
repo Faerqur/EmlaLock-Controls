@@ -1,8 +1,8 @@
 <html>
 <head>
-<title>EmlaLock Countdown Settings</title>
+<title>EmlaLock Keyholder Settings</title>
 <link href="common.css" rel="stylesheet">
-<link href="countdown-settings.css" rel="stylesheet">
+<link href="keyholder-settings.css" rel="stylesheet">
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 <script type="text/javascript" src="pSBC.js"></script>
 <script type="text/javascript" src="common.js"></script>
@@ -13,12 +13,13 @@ $(function() {
     function customizePage() {
         calculateTheme($.SETTINGS)
         setTheme($.THEME)
-        setTitle($.SETTINGS.name)
     }
 
     function setFormValues() {
-        $('#name').val($.SETTINGS.name)
         $('#userid').val($.SETTINGS.userid)
+        $('#apikey').val($.SETTINGS.apikey)
+        $('#deviceid').val($.SETTINGS.deviceid)
+        $('#access_token').val($.SETTINGS.access_token)
         $('#bgimage').val(decodeURIComponent($.SETTINGS.bgimage))
         setColor('#primary', '#primary-alpha', $.THEME.primary)
         setColor('#secondary', '#secondary-alpha', $.THEME.secondary)
@@ -31,7 +32,9 @@ $(function() {
         const bgcolor = getColor('#bgcolor', '#bgcolor-alpha')
         const settings = {
             userid: $('#userid').val(),
-            name: $('#name').val(),
+            apikey: $('#apikey').val(),
+            deviceid: $('#deviceid').val(),
+            access_token: $('#access_token').val(),
             primary: primary,
             secondary: secondary,
             bgcolor: bgcolor,
@@ -40,13 +43,13 @@ $(function() {
         return settings
     }
 
-    const WHICH = ['primary', 'secondary', 'bgcolor', 'bgimage', 'name', 'userid']
+    const WHICH = ['primary', 'secondary', 'bgcolor', 'bgimage', 'userid', 'apikey', 'deviceid', 'access_token']
 
     function populateLinks() {
-        const COUNTDOWN_URL = './Countdown.html'
+        const KEYHOLDER_URL = './Keyholder.html'
         $('#set').attr('href', '?' + makeQueryString($.SETTINGS, WHICH) + 'set')
         $('#template').attr('href', '?' + makeQueryString($.SETTINGS, WHICH))
-        $('#link').attr('href', COUNTDOWN_URL + '?' + makeQueryString($.SETTINGS, WHICH))
+        $('#link').attr('href', KEYHOLDER_URL + '?' + makeQueryString($.SETTINGS, WHICH))
     }
 
     $('#form input').on('input propertychange', function () {
@@ -58,7 +61,7 @@ $(function() {
     })
 
     loadQueryString()
-    loadSettings(DEFAULT_SETTINGS, 'COUNTDOWN_SETTINGS')
+    loadSettings(DEFAULT_SETTINGS, 'KEYHOLDER_SETTINGS')
     populateLinks()
     customizePage()
     setFormValues()
@@ -69,7 +72,10 @@ $(function() {
     <div id="field">
         <div id="form">
             <div><label for="userid">User ID</label> <input id="userid" /></div>
-            <div><label for="name">Name</label> <input id="name" /></div>
+            <div><label for="apikey">API Key</label> <input id="apikey" /></div>
+            <hr />
+            <div><label for="deviceid">Device ID</label> <input id="deviceid" /></div>
+            <div><label for="access_token">Access Token</label> <input id="access_token" /></div>
             <hr />
             <div><label for="primary">Primary color</label> <input id="primary" type="color" value="#7700bc" /> <input id="primary-alpha" type="range" min="0" max="255" value="255"/></div>
             <div><label for="secondary">Secondary color</label> <input id="secondary" type="color" value="#eeeeee" /> <input id="secondary-alpha" type="range" min="0" max="255" value="160"/></div>
@@ -80,7 +86,7 @@ $(function() {
                 <a href="#" id="set">Set</a>
                 <a href="?reset">Reset</a>
                 <a href="#" id="template" target="_blank">Template</a>
-                <a href="#" id="link" target="_blank">Countdown Export</a>
+                <a href="#" id="link" target="_blank">Keyholder Export</a>
             </div>
         </div>
     </div>

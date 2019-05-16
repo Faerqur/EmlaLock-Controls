@@ -11,254 +11,138 @@
 <script type="text/javascript">
 'use strict'
 
-var USERID
-var APIKEY
-var DEVICEID
-var ACCESS_TOKEN
-var URL = 'https://www.emlalock.com/plugin/counter'
-var URL_ADD = 'https://www.emlalock.com/api/add'
-var URL_ADDMINIMUM = 'https://www.emlalock.com/api/addminimum'
-var URL_INFO = 'https://www.emlalock.com/api/info'
-var URL_DEVICE = 'https://api.particle.io/v1/devices/'
+const URL = 'https://www.emlalock.com/plugin/counter'
+const URL_ADD = 'https://www.emlalock.com/api/add'
+const URL_ADDMINIMUM = 'https://www.emlalock.com/api/addminimum'
+const URL_INFO = 'https://www.emlalock.com/api/info'
+const URL_DEVICE = 'https://api.particle.io/v1/devices/'
 
-var MAX_AMOUNT = 60 * 60 * 24 * 7
+const MAX_AMOUNT = 60 * 60 * 24 * 7
 
-var COUNTDOWN
+let COUNTDOWN
 
 $(function() {
-    $.urlParam = function(name){
-        var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-        if (results==null){
-           return null;
-        }
-        else{
-           return decodeURI(results[1]) || 0;
-        }
-    }
-
-    var startStamp
-    var endStamp
-
-    USERID = localStorage.getItem('userid')
-    APIKEY = localStorage.getItem('apikey')
-    DEVICEID = localStorage.getItem('deviceid')
-    ACCESS_TOKEN = localStorage.getItem('access_token')
-    $('#userid').val(USERID)
-    $('#apikey').val(APIKEY)
-    $('#deviceid').val(DEVICEID)
-    $('#access_token').val(ACCESS_TOKEN)
-
-    $('#userid').on('input', function() {
-        USERID = $('#userid').val()
-        localStorage.setItem('userid', USERID)
-        load()
-    })
-    $('#apikey').on('input', function() {
-        APIKEY = $('#apikey').val()
-        localStorage.setItem('apikey', APIKEY)
-        load()
-    })
-    $('#deviceid').on('input', function() {
-        DEVICEID = $('#deviceid').val()
-        localStorage.setItem('deviceid', DEVICEID)
-        load()
-    })
-    $('#access_token').on('input', function() {
-        ACCESS_TOKEN = $('#access_token').val()
-        localStorage.setItem('access_token', ACCESS_TOKEN)
-        load()
-    })
-
-    function nonEmpty(val) {
-        return val && val != '0'
-    }
+    let startStamp
+    let endStamp
 
     function makeVisible() {
-        if(nonEmpty(USERID)) {
+        if(nonEmpty($.SETTINGS.userid)) {
             $('#profile').css('display', 'block')
             $('#countdown').css('display', 'flex')
         } else {
             $('#profile, #countdown').css('display', 'none')
         }
-        if(nonEmpty(APIKEY)) {
+        if(nonEmpty($.SETTINGS.apikey)) {
             $('#duration').css('display', 'block')
         } else {
             $('#duration').css('display', 'none')
         }
-        if(nonEmpty(DEVICEID) && nonEmpty(ACCESS_TOKEN)) {
+        if(nonEmpty($.SETTINGS.deviceid) && nonEmpty($.SETTINGS.access_token)) {
             $('#incentives').css('display', 'block')
         } else {
             $('#incentives').css('display', 'none')
         }
     }
 
-    function setFromUrlParams() {
-	var reload = false
-        if($.urlParam('userid') !== null) {
-            localStorage.setItem('userid',$.urlParam('userid'))
-            reload = true
-        }
-        if($.urlParam('apikey') !== null) {
-            localStorage.setItem('apikey',$.urlParam('apikey'))
-            reload = true
-        }
-        if($.urlParam('deviceid') !== null) {
-            localStorage.setItem('deviceid',$.urlParam('deviceid'))
-            reload = true
-        }
-	if($.urlParam('access_token') !== null) {
-            localStorage.setItem('access_token',$.urlParam('access_token'))
-            reload = true
-        }
-	if(reload) {
-            window.location.assign(window.location.href.replace(window.location.search,''))
-        }
-    }
-
-    function setCountdown(total, remaining) {
-        $('#face').attr('data-timer', remaining)
-        COUNTDOWN = $('#face').TimeCircles({
-            total_duration: total,
-            count_past_zero: false,
-            animation: 'smooth',
-            circle_bg_color: '#80808080',
-            fg_width: 0.05,
-            bg_width: 0.7,
-            time: {
-                Days: { color: "#7700bc" },
-                Hours: { color: "#a661ce" },
-                Minutes: { color: "#caa3e0" },
-                Seconds: { color: "#ebdef2" }
-            }
-        })
-        //COUNTDOWN.prototype.setTime = function(val) {
-        //    COUNTDOWN.addTime(val - COUNTDOWN.getTime())
-        //}
-    }
-
-    function reloadCounters() {
-        $.get(URL, {
-                userid: USERID
-            })
-            .done(function(data) {
-                var stringDates = data.match(/Date\(\d+\)/g)
-                startStamp = new Date(parseInt(stringDates[0].match(/\d+/g)[0]))
-                endStamp = new Date(parseInt(stringDates[1].match(/\d+/g)[0]))
-
-                var remaining = endStamp.getTime() - new Date().getTime()
-                var total = endStamp.getTime() - startStamp.getTime()
-                remaining /= 1000
-                total /= 1000
-
-                if (COUNTDOWN) {
-                    //$('#face').attr('data-timer', remaining)
-                    COUNTDOWN.addTime(remaining - COUNTDOWN.getTime())
-                } else {
-                    setCountdown(total, remaining)
-                }
-            })
-    }
-
     function load() {
-        $('#avatar').attr('src', 'https://www.emlalock.com/images/profile/' + USERID + '.jpg')
+        if(!nonEmpty($.SETTINGS.userid) && !nonEmpty($.SETTINGS.apikey)) {
+            return
+        }
+
+        $('#avatar').attr('src', 'https://www.emlalock.com/images/profile/' + $.SETTINGS.userid + '.jpg')
 
         $.get(URL_INFO, {
-                userid: USERID,
-                apikey: APIKEY
+                userid: $.SETTINGS.userid,
+                apikey: $.SETTINGS.apikey
             })
             .done(function(data) {
-                var info = data //JSON.parse(data)
-                var username = info['user']['username']
+                const info = data //JSON.parse(data)
+                const username = info['user']['username']
                 $('title, #username').text(username)
 
                 if ('chastitysession' in info) {
-                    reloadCounters()
-                } else {
-                    $('#up, #down').text('N/A')
+                    reloadCountdown()
                 }
             })
             .fail(function() {
                 $('title, #username').text('')
-                $('#up, #down').text('N/A')
             })
-
     }
-
 
     function addTime(val) {
         $('#action').text('Adding ' + val + ' seconds;')
         $.when(
             $.get(URL_ADD, {
-                userid: USERID,
-                apikey: APIKEY,
+                userid: $.SETTINGS.userid,
+                apikey: $.SETTINGS.apikey,
                 value: val
             }),
             $.get(URL_ADDMINIMUM, {
-                userid: USERID,
-                apikey: APIKEY,
+                userid: $.SETTINGS.userid,
+                apikey: $.SETTINGS.apikey,
                 value: val
             })).done(function(data1, data2) {
                 $('#action').text('Added ' + val + ' seconds;')
                 //$('#action').text($('#action').text() + ' normal time set,')
                 //$('#action').text($('#action').text() + ' minimal time set.')
-                reloadCounters()
+                reloadCountdown()
             })
     }
 
     function sendCommand(cmd, val=null) {
-        var data = {access_token: ACCESS_TOKEN}
+        const data = {access_token: $.SETTINGS.access_token}
         if (val != null) {
             Object.assign(data, {args: val})
         }
-        $.post(URL_DEVICE+DEVICEID+'/'+cmd, data, function (data) {
+        $.post(URL_DEVICE + $.SETTINGS.deviceid + '/' + cmd, data, function (data) {
             // Nothing
         })
     }
 
-    $('#point').on('click', function() {
-        var newTime = Date.parse($('#newTime').val())
-        //alert(JSON.stringify())
-        var amount = (newTime - endStamp) / 1000
-
+    function addValidTime(amount) {
         if (amount > 0 && amount < MAX_AMOUNT) {
             addTime(amount)
         }
+    }
+
+    $('#point').on('click', function() {
+        const newTime = Date.parse($('#newTime').val())
+        const amount = (newTime - endStamp) / 1000
+        addValidTime(amount)
     })
     $('#segment').on('click', function() {
-        var amount = 60 * 60 * parseInt($('#extraDuration').val())
-
-        if (amount > 0 && amount < MAX_AMOUNT) {
-            addTime(amount)
-        }
+        const amount = 60 * 60 * parseInt($('#extraDuration').val())
+        addValidTime(amount)
     })
-    $('#buzz').whenPressed(function () {
-        sendCommand('buzzer')
-    }, 250)
-    $('#level1').whenPressed(function () {
-        sendCommand('shocker', 20)
-    }, 250)
-    $('#level2').whenPressed(function () {
-        sendCommand('shocker', 33)
-    }, 250)
-    $('#level3').whenPressed(function () {
-        sendCommand('shocker', 50)
-    }, 250)
-    $('#levelVib1').whenPressed(function () {
-        sendCommand('vibrator', 40)
-    }, 250)
-    $('#levelVib2').whenPressed(function () {
-        sendCommand('vibrator', 60)
-    }, 250)
-    $('#levelVib3').whenPressed(function () {
-        sendCommand('vibrator', 80)
-    }, 250)
+
+    function bindActions(what) {
+        for (let elem in what) {
+            $(elem).whenPressed(function () {
+                sendCommand(...what[elem])
+            }, 250)
+        }
+    }
+
+    bindActions({
+        '#buzz': ['buzzer'],
+        '#level1': ['shocker', 20],
+        '#level2': ['shocker', 33],
+        '#level3': ['shocker', 50],
+        '#levelVib1': ['vibrator', 40],
+        '#levelVib2': ['vibrator', 60],
+        '#levelVib3': ['vibrator', 80],
+    })
 
 
-    setFromUrlParams()
+    loadQueryString()
+    loadSettings(DEFAULT_SETTINGS, 'KEYHOLDER_SETTINGS')
+    calculateTheme($.SETTINGS)
+    setTheme($.THEME)
     load()
     $(window).resize(function () {
         COUNTDOWN.rebuild()
     })
+    setInterval(reloadCountdown, 60*1000)
     makeVisible()
 })
 </script>
@@ -277,40 +161,36 @@ $(function() {
         <div id="elapsed_div">Elapsed: <span id="up"></span></div>
         <div id="remaining_div">Remaining: <span id="down"></span></div>-->
     </div>
-    <div id="duration">
-
-<div id="userid_div">User ID: <input id="userid" /></div>
-<div id="apikey_div">API Key: <input id="apikey" /></div>
-
-<div>
-Datetime:
-<input id="newTime" type="datetime-local" />
-<button id="point">Elongate to</button>
-</div>
-<div>
-Hours:
-<input id="extraDuration" type="number" />
-<button id="segment">Add time</button>
-</div>
-
-<div id="action">Placeholder</div>
+    <div id="duration" class="form">
+        <div>
+            <label for="newTime">Datetime:</label>
+            <input id="newTime" type="datetime-local" />
+            <button id="point">Elongate to</button>
+        </div>
+        <hr />
+        <div>
+            <label for="extraDuration">Hours:</label>
+            <input id="extraDuration" type="number" min="0" max="168" />
+            <button id="segment">Add time</button>
+        </div>
+        <!--<div id="action">Placeholder</div>-->
     </div>
-    <div id="incentives">
-
-<div id="deviceid_div">Device ID: <input id="deviceid" /></div>
-<div id="access_token_div">Access Token: <input id="access_token" /></div>
-
-<br />
-<button id="buzz" class="btn"><span>🔊</span></button>
-<br />
-<button id="levelVib1" class="btn"><span>⌇⌇⌇●○○</span></button>
-<button id="levelVib2" class="btn"><span>⌇⌇⌇●●○</span></button>
-<button id="levelVib3" class="btn"><span>⌇⌇⌇●●●</span></button>
-<br />
-<button id="level1" class="btn"><span>🗲●○○</span></button>
-<button id="level2" class="btn"><span>🗲●●○</span></button>
-<button id="level3" class="btn"><span>🗲●●●</span></button>
-
+    <div id="incentives" class="form">
+        <div class="buttonrow">
+            <button id="buzz" class="btn"><span>🔊</span></button>
+        </div>
+        <hr />
+        <div class="buttonrow">
+            <button id="levelVib1" class="btn"><span>⌇⌇⌇●○○</span></button>
+            <button id="levelVib2" class="btn"><span>⌇⌇⌇●●○</span></button>
+            <button id="levelVib3" class="btn"><span>⌇⌇⌇●●●</span></button>
+        </div>
+        <hr />
+        <div class="buttonrow">
+            <button id="level1" class="btn"><span>🗲●○○</span></button>
+            <button id="level2" class="btn"><span>🗲●●○</span></button>
+            <button id="level3" class="btn"><span>🗲●●●</span></button>
+        </div>
     </div>
 </div>
 
