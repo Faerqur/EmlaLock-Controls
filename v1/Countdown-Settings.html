@@ -74,7 +74,7 @@ $(function() {
     const WHICH = ['primary', 'secondary', 'bgcolor', 'bgimage', 'name', 'userid']
 
     function populateLinks() {
-      const COUNTDOWN_URL = './EmlaLock-Countdown.html'
+      const COUNTDOWN_URL = './Countdown.html'
       $('#set').attr('href', '?' + makeQueryString($.SETTINGS, WHICH) + 'set')
       $('#template').attr('href', '?' + makeQueryString($.SETTINGS, WHICH))
       $('#link').attr('href', COUNTDOWN_URL + '?' + makeQueryString($.SETTINGS, WHICH))
