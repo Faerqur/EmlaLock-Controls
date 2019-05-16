@@ -2,7 +2,7 @@
 
 ## Session
 
-In EmlaLock, create a session with visible counters and, ideally, make initial duration and minimal duration the same amount.
+In EmlaLock, create a session with visible counters and, ideally, set the initial duration and the minimal duration to the same amount.
 
 ## This interface
 
