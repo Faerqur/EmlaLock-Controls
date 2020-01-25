@@ -104,7 +104,7 @@ $(function() {
 
     $('#point').on('click', function() {
         const newTime = Date.parse($('#newTime').val())
-        const amount = (newTime - $.TIMEPOINTS.end) / 1000
+        const amount = (newTime - new Date(Math.max($.TIMEPOINTS.end.getTime(), Date.now()))) / 1000
         addValidTime(amount)
     })
     $('#segment').on('click', function() {
