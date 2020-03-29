@@ -24,6 +24,7 @@ The second section contains:
 * **Secondary color** -- this is the color for text.
 * **Background overlay color** -- it's layed over the background image.
 * **Background image URL** -- provide the url to a specific image which will be used as the background.
+* **RSS feed URL** -- enter the URL of RSS channel to a running EmlaLock session.
 
 The last section contains:
 

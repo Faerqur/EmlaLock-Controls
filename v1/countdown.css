@@ -1,7 +1,32 @@
 #field {
-    grid-gap: 10%;
-    grid-template: minmax(200px, 30%) minmax(200px, 1fr) / 10% 1fr 10%;
+    grid-gap: 5%;
+    grid-template: minmax(200px, 30%) minmax(200px, 2fr) minmax(100px, 1fr) / 10% 1fr 10%;
     grid-template-areas:
     ". profile ."
-    ". countdown .";
+    ". countdown ."
+    "feed feed feed";
+}
+
+#feed {
+    background-color: var(--primary-var);
+    box-shadow: 0 0 40px 20px var(--primary-var);
+    color: var(--secondary);
+    grid-area: feed;
+    display: grid;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    grid-template-rows: repeat(auto-fit, minmax(50px, 1fr));
+    grid-gap: 1rem;
+    grid-auto-flow: column;
+}
+
+#feed p {
+  border-radius: 5px;
+  background-color: var(--primary-var);
+  white-space: pre-wrap;
+  overflow: auto;
+  padding: 0.3rem;
+  margin: 0;
 }

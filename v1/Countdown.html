@@ -36,6 +36,28 @@ $(function() {
         } else {
             $('#profile').css('display', 'none')
         }
+
+        if(nonEmpty($.SETTINGS.rssfeed)) {
+            $('#feed').css('display', 'grid')
+        } else {
+            $('#feed').css('display', 'none')
+        }
+    }
+
+    function fetchEvents() {
+        fetch(decodeURIComponent($.SETTINGS.rssfeed))
+        .then(response => response.text())
+        .then(str => new window.DOMParser().parseFromString(str, "text/xml"))
+        .then(data => {
+            const items = data.querySelectorAll("item")
+            const feed = document.getElementById("feed")
+            feed.innerHTML = ''
+            items.forEach(el => {
+                const eventEl = document.createElement("p")
+                eventEl.innerHTML = el.querySelector("title").innerHTML
+                feed.appendChild(eventEl)
+            })
+        })
     }
 
     function load() {
@@ -48,6 +70,7 @@ $(function() {
             }
         })
         reloadCountdown()
+        fetchEvents()
     }
 
     load()
@@ -55,6 +78,7 @@ $(function() {
         COUNTDOWN.rebuild()
     })
     setInterval(reloadCountdown, 60*1000)
+    setInterval(fetchEvents, 60*1000)
     makeVisible()
 })
 </script>
@@ -67,6 +91,8 @@ $(function() {
         </div>
         <div id="countdown">
             <div id="face"></div>
+        </div>
+        <div id="feed">
         </div>
     </div>
 </body>

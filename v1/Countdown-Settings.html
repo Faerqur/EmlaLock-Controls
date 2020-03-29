@@ -20,6 +20,7 @@ $(function() {
         $('#name').val($.SETTINGS.name)
         $('#userid').val($.SETTINGS.userid)
         $('#bgimage').val(decodeURIComponent($.SETTINGS.bgimage))
+        $('#rssfeed').val(decodeURIComponent($.SETTINGS.rssfeed))
         setColor('#primary', '#primary-alpha', $.THEME.primary)
         setColor('#secondary', '#secondary-alpha', $.THEME.secondary)
         setColor('#bgcolor', '#bgcolor-alpha', $.THEME.bgcolor)
@@ -35,12 +36,13 @@ $(function() {
             primary: primary,
             secondary: secondary,
             bgcolor: bgcolor,
-            bgimage: encodeURIComponent($('#bgimage').val())
+            bgimage: encodeURIComponent($('#bgimage').val()),
+            rssfeed: encodeURIComponent($('#rssfeed').val())
         }
         return settings
     }
 
-    const WHICH = ['primary', 'secondary', 'bgcolor', 'bgimage', 'name', 'userid']
+    const WHICH = ['primary', 'secondary', 'bgcolor', 'bgimage', 'name', 'userid', 'rssfeed']
 
     function populateLinks() {
         const COUNTDOWN_URL = './Countdown.html'
@@ -75,6 +77,7 @@ $(function() {
             <div><label for="secondary">Secondary color</label> <input id="secondary" type="color" value="#eeeeee" /> <input id="secondary-alpha" type="range" min="0" max="255" value="160"/></div>
             <div><label for="bgcolor">Background overlay color</label> <input id="bgcolor" type="color" value="#000000"/> <input id="bgcolor-alpha" type="range" min="0" max="255" value="192"/></div>
             <div><label for="bgimage">Background image URL</label> <input id="bgimage" /></div>
+            <div><label for="rssfeed">RSS feed URL</label> <input id="rssfeed" /></div>
             <hr />
             <div class="buttonrow">
                 <a href="#" id="set">Set</a>

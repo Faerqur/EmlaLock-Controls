@@ -4,7 +4,8 @@ const DEFAULT_SETTINGS = {
     primary: '#7700bcff',
     secondary: '#eeeeeea0',
     bgcolor: '#000000c0',
-    bgimage: 'nice.jpg'
+    bgimage: 'nice.jpg',
+    rssfeed: ''
 }
 
 function loadQueryString() {
