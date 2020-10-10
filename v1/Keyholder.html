@@ -12,6 +12,7 @@
 'use strict'
 
 const URL = 'https://api.emlalock.com/plugin'
+const URL_IMG = 'https://api.emlalock.com/profile/'
 const URL_ADD = 'https://api.emlalock.com/add'
 const URL_ADDMINIMUM = 'https://api.emlalock.com/addminimum'
 const URL_INFO = 'https://api.emlalock.com/info'
@@ -46,7 +47,7 @@ $(function() {
             return
         }
 
-        $('#avatar').attr('src', 'https://www.emlalock.com/profile/' + $.SETTINGS.userid + '.jpg')
+        $('#avatar').attr('src', URL_IMG + $.SETTINGS.userid + '.jpg')
 
         $.get(URL_INFO, {
                 userid: $.SETTINGS.userid,
